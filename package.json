@@ -1,0 +1,13 @@
+{
+  "name": "nav-backend-cf-workers",
+  "version": "1.0.0",
+  "private": true,
+  "description": "redhe1314 web navigation portal - Cloudflare Workers edition (feature parity with the FastAPI version)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

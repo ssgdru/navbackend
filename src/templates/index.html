@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="same-origin">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+
+    <title>{{ title }}</title>
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+
+        html, body {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        body {
+            background:
+                linear-gradient(135deg, rgba(110,230,210,0.35), rgba(0,40,60,0.55)),
+                linear-gradient(rgba(0,0,0,0.30), rgba(0,0,0,0.40)),
+                url('/static/bg.jpg') center/cover no-repeat fixed,
+                #0a1a1f;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            --teal: #6ee6d2;
+            --teal-glow: rgba(110,230,210,0.55);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 32px;
+            text-shadow: 0 2px 16px rgba(0,0,0,0.6), 0 0 12px var(--teal-glow);
+            padding: 12px 32px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px) saturate(140%);
+            -webkit-backdrop-filter: blur(10px) saturate(140%);
+            border: 1px solid rgba(110,230,210,0.40);
+            box-shadow: 0 4px 24px rgba(0,0,0,0.30), inset 0 0 24px rgba(110,230,210,0.10);
+        }
+
+        .board {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .cat-row {
+            display: grid;
+            grid-template-columns: 130px 1fr;
+            align-items: start;
+            gap: 14px;
+            padding: 18px 22px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.09);
+            backdrop-filter: blur(14px) saturate(150%);
+            -webkit-backdrop-filter: blur(14px) saturate(150%);
+            border: 1px solid transparent;
+            background-clip: padding-box;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.30), inset 0 0 0 1px rgba(110,230,210,0.30);
+            position: relative;
+            overflow: hidden;
+        }
+        .cat-row::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            padding: 1px;
+            background: linear-gradient(135deg, var(--teal), rgba(110,230,210,0.10));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .cat-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--teal);
+            text-shadow: 0 0 12px var(--teal-glow);
+            padding-top: 8px;
+            letter-spacing: 2px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cat-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .link-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #fff;
+            font-size: 0.98rem;
+            font-weight: 600;
+            background: rgba(255,255,255,0.10);
+            border: 1px solid rgba(110,230,210,0.28);
+            transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+            white-space: nowrap;
+        }
+        .link-chip:hover {
+            transform: translateY(-4px);
+            background: rgba(255,255,255,0.18);
+            border-color: rgba(110,230,210,0.60);
+            box-shadow: 0 10px 26px rgba(0,0,0,0.40), 0 0 18px var(--teal-glow);
+        }
+
+        .link-chip .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--teal);
+            margin-right: 10px;
+            box-shadow: 0 0 10px var(--teal-glow), 0 0 3px #fff;
+            flex-shrink: 0;
+        }
+
+        .link-chip .fav {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.12);
+            object-fit: contain;
+            flex-shrink: 0;
+            -webkit-user-drag: none;
+            user-drag: none;
+        }
+
+        #pc-layout { display: block; }
+
+        #mobile-layout { display: none; }
+        #mobile-layout .board {
+            max-width: 480px;
+            gap: 14px;
+        }
+        #mobile-layout .cat-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 16px 18px;
+        }
+        #mobile-layout .cat-name {
+            font-size: 1.15rem;
+            padding-top: 0;
+            border-bottom: 1px dashed rgba(110,230,210,0.35);
+            padding-bottom: 8px;
+        }
+        #mobile-layout .cat-links { gap: 10px; }
+        #mobile-layout .link-chip {
+            flex: 0 0 auto;
+            padding: 14px 20px;
+            font-size: 1.1rem;
+        }
+        #mobile-layout .link-chip .fav {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+            border-radius: 5px;
+        }
+        #mobile-layout .link-chip:active {
+            transform: scale(0.97);
+            background: rgba(255,255,255,0.20);
+        }
+
+        .footer {
+            margin-top: 36px;
+            font-size: 0.78rem;
+            color: rgba(255,255,255,0.65);
+            text-align: center;
+        }
+        .footer a {
+            color: var(--teal);
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(110,230,210,0.40);
+            background: rgba(110,230,210,0.10);
+            transition: background .3s ease, color .3s ease;
+            margin-left: 6px;
+        }
+        .footer a:hover {
+            background: rgba(110,230,210,0.25);
+            color: #fff;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 14px; }
+            h1 { font-size: 1.4rem; padding: 10px 22px; margin-bottom: 22px; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ title }}</h1>
+
+    <section id="pc-layout" aria-label="PC">
+        <div class="board">
+            {% for cat in categories %}
+            <div class="cat-row">
+                <div class="cat-name">{{ cat.name }}</div>
+                <nav class="cat-links" aria-label="{{ cat.name }}">
+                    {% for item in cat.links %}
+                    <a class="link-chip" href="{{ item.url }}" target="_blank" rel="noopener noreferrer nofollow">
+                        {% if item.icon == 'fav' and item.icon_url %}<img class="fav" src="{{ item.icon_url }}" alt="" loading="lazy" onerror="favFallback(this)">{% else %}<span class="dot"></span>{% endif %}{{ item.title }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section id="mobile-layout" aria-label="Mobile">
+        <div class="board">
+            {% for cat in categories %}
+            <div class="cat-row">
+                <div class="cat-name">{{ cat.name }}</div>
+                <nav class="cat-links" aria-label="{{ cat.name }}">
+                    {% for item in cat.links %}
+                    <a class="link-chip" href="{{ item.url }}" target="_blank" rel="noopener noreferrer nofollow">
+                        {% if item.icon == 'fav' and item.icon_url %}<img class="fav" src="{{ item.icon_url }}" alt="" loading="lazy" onerror="favFallback(this)">{% else %}<span class="dot"></span>{% endif %}{{ item.title }}
+                    </a>
+                    {% endfor %}
+                </nav>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="footer">仅供个人使用 ·<a href="/disclaimer">查看免责声明</a></div>
+
+    <script>
+        (function switchLayout() {
+            var ua = navigator.userAgent || '';
+            var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|Tablet/i.test(ua);
+            var pcEl = document.getElementById('pc-layout');
+            var moEl = document.getElementById('mobile-layout');
+            if (isMobile) {
+                pcEl.style.display = 'none';
+                moEl.style.display = 'block';
+            } else {
+                pcEl.style.display = 'block';
+                moEl.style.display = 'none';
+            }
+        })();
+
+        function favFallback(img) {
+            var dot = document.createElement('span');
+            dot.className = 'dot';
+            img.replaceWith(dot);
+        }
+
+        document.addEventListener('contextmenu', function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('selectstart', function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('dragstart', function (e) {
+            e.preventDefault();
+            return false;
+        });
+
+        document.addEventListener('keydown', function (e) {
+            var key = e.key || '';
+            var code = e.keyCode || e.which || 0;
+
+            if (code === 123) { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.shiftKey && (
+                key === 'I' || key === 'i' || code === 73 ||
+                key === 'J' || key === 'j' || code === 74 ||
+                key === 'C' || key === 'c' || code === 67
+            )) { e.preventDefault(); return false; }
+            if (e.ctrlKey && (key === 'u' || key === 'U' || code === 85)) { e.preventDefault(); return false; }
+            if (e.ctrlKey && (key === 's' || key === 'S' || code === 83)) { e.preventDefault(); return false; }
+        }, false);
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+name = "nav-backend"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+# ------------------------------------------------------------------
+# Static assets: served by Cloudflare edge BEFORE the worker runs.
+#   public/static/bg.jpg        ->  https://<host>/static/bg.jpg
+#   public/disclaimer.html      ->  https://<host>/disclaimer (auto html handling)
+# Everything not found in ./public falls through to the worker routes.
+# Never place an index.html inside ./public — "/" must be rendered by the worker.
+# ------------------------------------------------------------------
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# Text imports for HTML templates rendered by the mini-Jinja engine
+rules = [
+  { type = "Text", globs = ["**/*.html"] }
+]
+
+# ------------------------------------------------------------------
+# Per-IP rate limit: 60 requests / 60 seconds (mirrors the FastAPI IPRateLimiter).
+# Uses the open-beta rate limit binding; worker code degrades gracefully if absent.
+# ------------------------------------------------------------------
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+limit = 60
+period = 60
+
+[vars]
+# Same secret as the FastAPI version, so the manual signed-URL command stays identical:
+#   sign = MD5(API_SECRET + ms_timestamp)
+API_SECRET = "redhe1314_nav_secret_2024_x#"

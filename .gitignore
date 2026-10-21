@@ -1,0 +1,16 @@
+# runtime / generated
+node_modules/
+.wrangler/
+__pycache__/
+*.pyc
+
+# deployment package archives (regenerable via npx wrangler deploy)
+*.zip
+
+# local temp files
+_*.txt
+_*.py
+
+# OS
+.DS_Store
+Thumbs.db
