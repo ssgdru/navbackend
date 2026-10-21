@@ -1,6 +1,12 @@
-name = "nav-backend"
+name = "navbackend"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
+
+# Text imports for HTML templates rendered by the mini-Jinja engine.
+# NOTE: top-level field; anything placed after a [table] header belongs to that table.
+rules = [
+  { type = "Text", globs = ["**/*.html"] }
+]
 
 # ------------------------------------------------------------------
 # Static assets: served by Cloudflare edge BEFORE the worker runs.
@@ -13,11 +19,6 @@ compatibility_date = "2025-09-01"
 directory = "./public"
 binding = "ASSETS"
 
-# Text imports for HTML templates rendered by the mini-Jinja engine
-rules = [
-  { type = "Text", globs = ["**/*.html"] }
-]
-
 # ------------------------------------------------------------------
 # Per-IP rate limit: 60 requests / 60 seconds (mirrors the FastAPI IPRateLimiter).
 # Uses the open-beta rate limit binding; worker code degrades gracefully if absent.
@@ -25,6 +26,7 @@ rules = [
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
 type = "ratelimit"
+namespace_id = "navbackend"
 limit = 60
 period = 60
 
