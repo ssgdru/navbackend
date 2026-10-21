@@ -26,7 +26,7 @@ binding = "ASSETS"
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
 type = "ratelimit"
-namespace_id = "navbackend"
+namespace_id = "9f2e7c4b1a8d5f306c2b4e8d7a1f5c93"
 limit = 60
 period = 60
 
