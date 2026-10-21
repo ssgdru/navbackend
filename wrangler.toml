@@ -19,16 +19,6 @@ rules = [
 directory = "./public"
 binding = "ASSETS"
 
-# ------------------------------------------------------------------
-# Per-IP rate limit: 60 requests / 60 seconds (mirrors the FastAPI IPRateLimiter).
-# Uses the open-beta rate limit binding; worker code degrades gracefully if absent.
-# ------------------------------------------------------------------
-[[unsafe.bindings]]
-name = "RATE_LIMITER"
-type = "ratelimit"
-namespace_id = "9f2e7c4b1a8d5f306c2b4e8d7a1f5c93"
-limit = 60
-period = 60
 
 [vars]
 # Same secret as the FastAPI version, so the manual signed-URL command stays identical:
