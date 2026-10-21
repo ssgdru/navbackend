@@ -100,7 +100,7 @@ routes = [
 | 站点 favicon.ico | main.py 路由 | Worker 路由 → 资产 | 行为一致 |
 | 免责声明页 | Jinja2 渲染 | 资产直出 | 内容一致 |
 | 站点图标代理 /icon/ | 内存白名单 + 磁盘缓存 + 1h 负缓存 | 白名单 + **Cache API 边缘缓存** + 1h 负缓存（404 缓存） | 失败回退圆点行为一致 |
-| IP 限流 60/min | 进程内存计数器 | CF Rate Limit binding（60/60s） | binding 未配置时自动跳过（靠 CF 平台防护兜底） |
+| IP 限流 | 进程内存计数器（60/min） | 由 **CF 控制台 WAF 速率规则**承担（Worker 内实验性 binding 已移除） |
 | 安全响应头 CSP 等 | 中间件统一注入 | Worker 统一注入 | 头集合一致 |
 | `/api/nav` 60 秒签名 | ✅ | ✅ | 同 secret 同算法，手工 URL 命令通用 |
 | **PCL2 下载** | ✅（签名 24h） | ❌ **未移植** | 需要该功能请使用 FastAPI/1Panel 版 |
@@ -142,7 +142,7 @@ py tests\test_render.py    # 依赖 jinja2 + dukpy（pip install jinja2 dukpy）
 | 图标全为圆点 | 目标站无标准 favicon 或出网被限 | 1 小时后自动重试（负缓存过期）；重新 deploy 清缓存 |
 | 首页能开但样式乱 | public/static 未随包上传 | 确认 `public/static/bg.jpg` 存在后重新 deploy |
 | workers.dev 打不开 | 某些地区网络限制 | 绑定自定义域名（第四节） |
-| 429 Too Many Requests | 触发 60/min 限流 | 正常防护；需要更高额度在 CF 控制台调整 |
+| 429 Too Many Requests | WAF 速率规则触发（如已配置） | 正常防护；需要更高额度在 CF 控制台调整 |
 
 ---
 
@@ -151,7 +151,7 @@ py tests\test_render.py    # 依赖 jinja2 + dukpy（pip install jinja2 dukpy）
 - ts+MD5 签名为门槛型防护：`API_SECRET` 位于 `wrangler.toml [vars]`（部署后可在控制台改为加密 Secret：`npx wrangler secret put API_SECRET` 并从 vars 移除），抓包可见全部参数与返回数据；60 秒窗口内签名可重放
 - 图标代理有域名白名单 + 256KB 上限 + 4 秒超时，防开放代理滥用；第三方 favicon 缓存在 Cloudflare 边缘（访客 IP 不会暴露给第三方站点，与 FastAPI 版一致）
 - 资产层（/static/、/disclaimer）由 CF 直出，不经过 Worker 安全头；如需对这些路径加安全头/防盗链，用 CF 控制台的 **Transform Rules / WAF** 配置
-- 限流依赖 Rate Limit binding（open beta）；如该功能不可用，Worker 自动跳过限流，建议同时在 CF 控制台 WAF 配置速率规则兜底
+- 实验性 Rate Limit binding 已移除（CF API 拒绝其 namespace_id 格式，导致 CI 部署失败）；限流改由 **CF 控制台 → 安全性 → WAF → 速率限制规则** 承担（Worker 代码自动兼容，无 binding 时跳过限流）
 - 无服务器架构下没有可被攻破的"主机"，攻击面集中在 Worker 代码与 CF 平台配置本身
 
 ---

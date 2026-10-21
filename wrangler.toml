@@ -2,12 +2,6 @@ name = "navbackend"
 main = "src/worker.js"
 compatibility_date = "2025-09-01"
 
-# Text imports for HTML templates rendered by the mini-Jinja engine.
-# NOTE: top-level field; anything placed after a [table] header belongs to that table.
-rules = [
-  { type = "Text", globs = ["**/*.html"] }
-]
-
 # ------------------------------------------------------------------
 # Static assets: served by Cloudflare edge BEFORE the worker runs.
 #   public/static/bg.jpg        ->  https://<host>/static/bg.jpg
@@ -19,6 +13,13 @@ rules = [
 directory = "./public"
 binding = "ASSETS"
 
+# ------------------------------------------------------------------
+# Rate limiting: the experimental ratelimit binding was removed because the
+# Cloudflare API rejects its namespace_id under CI deploys (error 10021).
+# Per-IP rate limiting can be configured in the dashboard instead:
+#   Cloudflare dashboard -> your domain -> Security -> WAF -> Rate limiting rules
+# The worker already skips limiting gracefully when the binding is absent.
+# ------------------------------------------------------------------
 
 [vars]
 # Same secret as the FastAPI version, so the manual signed-URL command stays identical:
